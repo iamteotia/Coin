@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LodaCoin — Chaos, Decentralized.</title>
+<meta name="description" content="LodaCoin is a peer-to-peer chaos engine. Embark on a seamless journey into a world full of Chaos.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #06010f;
+    --bg-2: #0d0420;
+    --fg: #f5f0ff;
+    --muted: #a89cc9;
+    --accent: #b835ff;
+    --accent-2: #ff2d92;
+    --accent-3: #ffb627;
+    --card: rgba(255,255,255,0.035);
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+  .font-display { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Aurora background */
+  .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .blob {
+    position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+    filter: blur(120px); opacity: 0.45; will-change: transform;
+  }
+  .blob.a { top: -25%; left: -15%; background: radial-gradient(circle, #b835ff 0%, transparent 60%); animation: float1 22s ease-in-out infinite; }
+  .blob.b { bottom: -25%; right: -15%; background: radial-gradient(circle, #ff2d92 0%, transparent 60%); animation: float2 26s ease-in-out infinite; }
+  .blob.c { top: 40%; left: 50%; width: 50vmax; height: 50vmax; background: radial-gradient(circle, #ffb627 0%, transparent 60%); animation: float3 30s ease-in-out infinite; opacity: 0.25; }
+  @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(8%,6%) scale(1.15)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-8%,-6%) scale(1.1)} }
+  @keyframes float3 { 0%,100%{transform:translate(-50%,0) scale(1)} 50%{transform:translate(-50%,-5%) scale(1.2)} }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(184, 53, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184, 53, 255, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Glass */
+  .glass {
+    background: var(--card);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--border);
+  }
+  .glass-strong {
+    background: rgba(13,4,32,0.7);
+    backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--border);
+  }
+
+  /* Gradient text */
+  .grad-text {
+    background: linear-gradient(135deg, #b835ff 0%, #ff2d92 50%, #ffb627 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .grad-text-2 {
+    background: linear-gradient(135deg, #ffb627 0%, #ff2d92 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #b835ff, #ff2d92);
+    color: white; transition: all 0.3s ease; position: relative; overflow: hidden;
+    border: none; cursor: pointer;
+  }
+  .btn-primary::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, #ff2d92, #ffb627); opacity:0; transition:opacity 0.3s ease;
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(255,45,146,0.5); }
+  .btn-primary > * { position: relative; z-index: 1; }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+    cursor: pointer; color: var(--fg);
+  }
+  .btn-ghost:hover { border-color: var(--accent-3); background: rgba(255,182,39,0.06); color: var(--accent-3); }
+
+  /* Coin 3D */
+  .coin-scene { perspective: 1200px; }
+  .coin {
+    width: 280px; height: 280px; position: relative;
+    transform-style: preserve-3d;
+    animation: spinCoin 14s linear infinite;
+  }
+  .coin-face {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffe08a 0%, #ffb627 35%, #c87f0a 80%, #6b4205 100%);
+    box-shadow: inset -10px -10px 30px rgba(0,0,0,0.5), inset 10px 10px 30px rgba(255,255,255,0.3), 0 30px 60px -15px rgba(255,182,39,0.4);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    backface-visibility: hidden;
+  }
+  .coin-face.back { transform: rotateY(180deg); }
+  .coin-edge {
+    position: absolute; inset: 0; border-radius: 50%;
+    transform: translateZ(-1px);
+  }
+  @keyframes spinCoin {
+    from { transform: rotateY(0deg) rotateX(8deg); }
+    to { transform: rotateY(360deg) rotateX(8deg); }
+  }
+  .coin-symbol {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 140px; line-height: 1; color: #6b4205;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.4), -1px -1px 0 rgba(0,0,0,0.2);
+  }
+  .coin-label {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    letter-spacing: 0.3em; font-size: 11px; color: #6b4205; margin-top: 4px;
+  }
+
+  /* Marquee ticker */
+  .marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); }
+  .marquee-track { display: flex; width: max-content; animation: marqueeMove 40s linear infinite; }
+  @keyframes marqueeMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Noise */
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent), var(--accent-2)); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-3); }
+
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Floating particles */
+  .particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .particle { position: absolute; bottom: -10px; border-radius: 50%; opacity: 0; }
+
+  /* Roadmap */
+  .roadmap-line { position: absolute; left: 27px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--accent), var(--accent-2), var(--accent-3), transparent); }
+  .roadmap-dot { position: absolute; left: 20px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent-3); box-shadow: 0 0 20px var(--accent-3); }
+
+  /* Form */
+  .input-field {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    transition: all 0.3s ease;
+  }
+  .input-field:focus {
+    outline: none; border-color: var(--accent-2);
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 4px rgba(255,45,146,0.1);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100;
+    transform: translateY(120%); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .toast.show { transform: translateY(0); }
+
+  /* Nav links underline */
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-3)); transition: width 0.3s ease;
+  }
+  .nav-link:hover::after { width: 100%; }
+
+  /* Hero scroll indicator */
+  .scroll-ind { animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+  /* Card hover */
+  .feat-card { transition: all 0.4s ease; position: relative; overflow: hidden; }
+  .feat-card::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--accent), transparent, var(--accent-3), transparent);
+    opacity: 0; transition: opacity 0.5s ease; animation: spin 6s linear infinite;
+  }
+  .feat-card:hover::before { opacity: 0.15; }
+  .feat-card:hover { transform: translateY(-4px); border-color: rgba(255,182,39,0.3); }
+  .feat-card > * { position: relative; z-index: 1; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Number counter size */
+  .stat-num { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; }
+
+  /* Selection */
+  ::selection { background: var(--accent-2); color: white; }
+
+  /* Mobile menu */
+  .mobile-menu { transform: translateX(100%); transition: transform 0.4s ease; }
+  .mobile-menu.open { transform: translateX(0); }
+
+  /* Whitepaper code block */
+  .code-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    overflow-x: auto;
+  }
+
+  /* Hero typing */
+  .typewriter::after {
+    content: '|'; animation: blink 1s steps(2) infinite;
+    color: var(--accent-3);
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Glow ring around hero CTA */
+  .glow-ring {
+    position: absolute; inset: -4px; border-radius: 9999px; z-index: -1; opacity: 0;
+    background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+    filter: blur(12px); transition: opacity 0.4s ease;
+    animation: spin 4s linear infinite;
+  }
+  .glow-wrap:hover .glow-ring { opacity: 0.8; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+<div class="noise"></div>
+
+<!-- NAVIGATION -->
+<nav class="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4">
+  <div class="max-w-7xl mx-auto flex items-center justify-between glass-strong rounded-2xl px-5 sm:px-6 py-3">
+    <a href="#top" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-amber-400 flex items-center justify-center font-display font-bold text-white shadow-lg shadow-fuchsia-500/30">L</div>
+      <span class="font-display font-bold text-xl tracking-tight">LodaCoin</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-8 text-sm" style="color:var(--muted)">
+      <a href="#about" class="nav-link hover:text-white transition">About</a>
+      <a href="#markets" class="nav-link hover:text-white transition">Markets</a>
+      <a href="#features" class="nav-link hover:text-white transition">Technology</a>
+      <a href="#whitepaper" class="nav-link hover:text-white transition">Whitepaper</a>
+      <a href="#roadmap" class="nav-link hover:text-white transition">Roadmap</a>
+      <a href="#join" class="nav-link hover:text-white transition">Airdrop</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="glow-wrap relative hidden sm:block">
+        <button onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})" class="btn-primary px-5 py-2.5 rounded-full text-sm font-semibold">
+          <span>Claim 1,000 LDC</span>
+        </button>
+        <div class="glow-ring"></div>
+      </div>
+      <button id="menuBtn" class="lg:hidden btn-ghost w-10 h-10 rounded-full flex items-center justify-center">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 lg:hidden">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleMenu()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-72 glass-strong p-8 pt-24 flex flex-col gap-6">
+    <a href="#about" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">About</a>
+    <a href="#markets" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Markets</a>
+    <a href="#features" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Technology</a>
+    <a href="#whitepaper" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Whitepaper</a>
+    <a href="#roadmap" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Roadmap</a>
+    <a href="#join" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Airdrop</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="top" class="relative min-h-screen flex items-center pt-32 pb-20 px-6">
+  <div class="grid-overlay"></div>
+  <div class="particles" id="heroParticles"></div>
+  <div class="max-w-7xl mx-auto w-full relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+    
+    <div class="text-center lg:text-left">
+      <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs mb-6 reveal">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span style="color:var(--muted)">Mainnet Live · Block #<span id="blockNum" class="tnum">2,847,193</span></span>
+      </div>
+      
+      <h1 class="font-display font-bold text-5xl sm:text-7xl lg:text-8xl leading-[0.95] mb-6 reveal">
+        Chaos,<br>
+        <span class="grad-text">decentralized.</span>
+      </h1>
+      
+      <p class="text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-8 reveal" style="color:var(--muted)">
+        LodaCoin is a peer-to-peer chaos engine. A seamless journey into a world
+        full of Chaos — secured by proof-of-confusion, governed by entropy, and
+        minted in the fires of pure absurdity.
+      </p>
+      
+      <div class="flex flex-wrap gap-3 justify-center lg:justify-start mb-10 reveal">
+        <div class="glow-wrap relative">
+          <button onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})" class="btn-primary px-7 py-3.5 rounded-full font-semibold">
+            <span><i class="fas fa-rocket mr-2"></i>Claim Airdrop</span>
+          </button>
+          <div class="glow-ring"></div>
+        </div>
+        <a href="#whitepaper" class="btn-ghost px-7 py-3.5 rounded-full font-semibold inline-flex items-center">
+          <i class="fas fa-file-lines mr-2"></i>Read Whitepaper
+        </a>
+      </div>
+
+      <!-- Price ticker mini -->
+      <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0 reveal">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Price</div>
+          <div class="font-display font-bold text-2xl tnum" id="heroPrice">$0.00<span id="heroPriceDec">42</span></div>
+          <div class="text-xs text-emerald-400 tnum"><i class="fas fa-caret-up"></i> <span id="heroChange">+12.4%</span></div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Market Cap</div>
+          <div class="font-display font-bold text-2xl tnum">$<span id="heroMcap">184.2</span>M</div>
+          <div class="text-xs" style="color:var(--muted)">Rank #2,847</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Holders</div>
+          <div class="font-display font-bold text-2xl tnum" id="heroHolders">42,069</div>
+          <div class="text-xs text-amber-400">+<span id="heroHoldersDelta">312</span>/hr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coin visualization -->
+    <div class="flex justify-center lg:justify-end reveal">
+      <div class="coin-scene relative">
+        <!-- Orbit rings -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[420px] h-[420px] rounded-full border border-fuchsia-500/10"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[360px] h-[360px] rounded-full border border-violet-500/15"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[480px] h-[480px] rounded-full border border-amber-500/5"></div>
+        </div>
+        
+        <div class="coin">
+          <div class="coin-face">
+            <div class="coin-symbol">L</div>
+            <div class="coin-label">LODA · COIN</div>
+          </div>
+          <div class="coin-face back">
+            <div class="coin-symbol">∞</div>
+            <div class="coin-label">CHAOS ENGINE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 scroll-ind hidden md:block" style="color:var(--muted)">
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- TICKER MARQUEE -->
+<section class="relative py-4 border-y border-white/5 bg-black/30 backdrop-blur-sm z-10">
+  <div class="marquee">
+    <div class="marquee-track">
+      <div class="flex items-center gap-10 px-5 text-sm whitespace-nowrap" id="tickerTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="relative py-32 px-6 z-10">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+      <div class="md:col-span-4 reveal">
+        <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">01 — Manifesto</div>
+        <h2 class="font-display font-bold text-4xl sm:text-5xl leading-tight">
+          A seamless journey into <span class="grad-text-2">total chaos.</span>
+        </h2>
+      </div>
+      <div class="md:col-span-8 reveal">
+        <p class="text-xl leading-relaxed mb-6" style="color:var(--muted)">
+          Satoshi gave the world a sound money. Vitalik gave it a world computer.
+          We gave it a <span class="text-white font-medium">reason to log off and question everything.</span>
+        </p>
+        <p class="text-lg leading-relaxed mb-6" style="color:var(--muted)">
+          LodaCoin is the first monetary protocol engineered around the
+          principle that life is already a seamless journey into a world full of
+          Chaos — so why pretend otherwise? Every block is a confession. Every
+          transaction is a small act of beautiful nonsense. Every wallet is a
+          life-raft on a river of pure entropy.
+        </p>
+        <p class="text-lg leading-relaxed" style="color:var(--muted)">
+          We did not invent chaos. We just made it spendable.
+        </p>
+
+        <div class="grid sm:grid-cols-3 gap-4 mt-10">
+          <div class="glass rounded-2xl p-5">
+            <div class="font-display font-bold text-3xl grad-text">21B</div>
+            <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--muted)">Total Supply</div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <div class="font-display font-bold text-3xl grad-text">0.42s</div>
+            <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--muted)">Block Time</div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <div class="font-display font-bold text-3xl grad-text">∞</div>
+            <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--muted)">Maximum Chaos</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS / LIVE CHART -->
+<section id="markets" class="relative py-24 px-6 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-10 reveal">
+      <div>
+        <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">02 — Markets</div>
+        <h2 class="font-display font-bold text-4xl sm:text-5xl">Live LDC/USD action.</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="time-btn btn-ghost px-4 py-2 rounded-full text-xs font-medium" data-range="1H">1H</button>
+        <button class="time-btn btn-ghost px-4 py-2 rounded-full text-xs font-medium active" data-range="24H">24H</button>
+        <button class="time-btn btn-ghost px-4 py-2 rounded-full text-xs font-medium" data-range="7D">7D</button>
+        <button class="time-btn btn-ghost px-4 py-2 rounded-full text-xs font-medium" data-range="30D">30D</button>
+        <button class="time-btn btn-ghost px-4 py-2 rounded-full text-xs font-medium" data-range="ALL">ALL</button>
+      </div>
+    </div>
+
+    <div class="glass-strong rounded-3xl p-6 sm:p-8 reveal">
+      <!-- Top stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 pb-6 border-b border-white/5">
+        <div>
+          <div class="text-xs uppercase tracking-wider mb-1" style="color:var(--muted)">LDC Price</div>
+          <div class="font-display font-bold text-2xl tnum" id="chartPrice">$0.0042</div>
+          <div class="text-xs tnum" id="chartChange"><span class="text-emerald-400">+12.42%</span></div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider mb-1" style="color:var(--muted)">24h Volume</div>
+          <div class="font-display font-bold text-2xl tnum" id="chartVol">$8.42M</div>
+          <div class="text-xs text-amber-400 tnum">+24.8%</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider mb-1" style="color:var(--muted)">24h High</div>
+          <div class="font-display font-bold text-2xl tnum" id="chartHigh">$0.0048</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider mb-1" style="color:var(--muted)">24h Low</div>
+          <div class="font-display font-bold text-2xl tnum" id="chartLow">$0.0036</div>
+        </div>
+      </div>
+
+      <!-- Chart canvas -->
+      <div class="relative" style="height: 380px;">
+        <canvas id="priceChart"></canvas>
+      </div>
+
+      <!-- Fake "exchanges" -->
+      <div class="mt-6 pt-6 border-t border-white/5 flex flex-wrap items-center gap-x-8 gap-y-3 text-xs" style="color:var(--muted)">
+        <span class="uppercase tracking-wider">Listed on:</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> ChaoticX</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> B-Inside</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> KuCoinButBigger</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> GateOfEntropy</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> MEXC-ier</span>
+        <span class="flex items-center gap-2"><i class="fas fa-circle text-[6px] text-emerald-400"></i> UniSwapV3-but-slower</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES / TECHNOLOGY -->
+<section id="features" class="relative py-32 px-6 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">03 — Technology</div>
+      <h2 class="font-display font-bold text-4xl sm:text-5xl mb-5">Built on pillars of pure nonsense.</h2>
+      <p class="text-lg" style="color:var(--muted)">
+        Six groundbreaking innovations. Zero of them make any sense. That's the point.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center mb-5">
+          <i class="fas fa-shuffle text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Proof-of-Confusion</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          A novel consensus mechanism where validators must honestly admit they
+          have no idea what's going on. The more confused the network, the more
+          secure it becomes. 51% attacks require 51% of validators to suddenly
+          understand something.
+        </p>
+      </div>
+
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-amber-400 flex items-center justify-center mb-5">
+          <i class="fas fa-infinity text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Entropy Virtual Machine</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          A Turing-complete runtime where every opcode is optional and gas fees
+          are paid in regret. Smart contracts execute whenever they feel like it
+          — usually at the worst possible moment.
+        </p>
+      </div>
+
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 flex items-center justify-center mb-5">
+          <i class="fas fa-bolt text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Inconsistent Finality</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          Transactions are never truly final. They're just suggestions. Blocks
+          can be reorged by anyone, at any time, for any reason — including
+          vibes. This guarantees censorship resistance against logic itself.
+        </p>
+      </div>
+
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-amber-400 flex items-center justify-center mb-5">
+          <i class="fas fa-network-wired text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Sharded Reality</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          The chain is split into 64 parallel universes. Each shard has its own
+          laws of physics, its own monetary policy, and its own version of you.
+          Cross-shard communication is theoretically possible but emotionally
+          discouraged.
+        </p>
+      </div>
+
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-violet-500 flex items-center justify-center mb-5">
+          <i class="fas fa-eye text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Zero-Knowledge Panic</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          ZKP proofs so advanced they don't even convince the prover. Every
+          transaction is fully private — including from the person who sent it.
+          You'll check your balance and feel a gentle existential dread.
+        </p>
+      </div>
+
+      <div class="feat-card glass rounded-3xl p-7 reveal">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-fuchsia-500 flex items-center justify-center mb-5">
+          <i class="fas fa-fan text-white text-xl"></i>
+        </div>
+        <h3 class="font-display font-bold text-xl mb-3">Self-Destructive Upgrades</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">
+          Protocol upgrades are deployed automatically, without governance, and
+          often without warning. Each fork is more chaotic than the last. The
+          roadmap is a suggestion box that nobody reads.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section class="relative py-24 px-6 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="reveal">
+        <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">04 — Tokenomics</div>
+        <h2 class="font-display font-bold text-4xl sm:text-5xl mb-6">Math we definitely did not make up.</h2>
+        <p class="text-lg mb-8" style="color:var(--muted)">
+          The LDC token is distributed across five carefully balanced buckets.
+          Each bucket leaks. Each leak is a feature.
+        </p>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 glass rounded-2xl">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full" style="background:#b835ff"></span>
+              <span class="font-medium">Community Airdrops</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm tnum" style="color:var(--muted)">8.4B LDC</span>
+              <span class="font-display font-bold tnum">40%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 glass rounded-2xl">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full" style="background:#ff2d92"></span>
+              <span class="font-medium">Founder's Bargain Bin</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm tnum" style="color:var(--muted)">5.25B LDC</span>
+              <span class="font-display font-bold tnum">25%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 glass rounded-2xl">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full" style="background:#ffb627"></span>
+              <span class="font-medium">Validator Reward Pool</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm tnum" style="color:var(--muted)">4.2B LDC</span>
+              <span class="font-display font-bold tnum">20%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 glass rounded-2xl">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full" style="background:#10b981"></span>
+              <span class="font-medium">Ecosystem Slush Fund</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm tnum" style="color:var(--muted)">2.1B LDC</span>
+              <span class="font-display font-bold tnum">10%</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-4 glass rounded-2xl">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full" style="background:#6b7280"></span>
+              <span class="font-medium">Burned (On Accident)</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm tnum" style="color:var(--muted)">1.05B LDC</span>
+              <span class="font-display font-bold tnum">5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="reveal flex justify-center">
+        <div class="relative">
+          <canvas id="donutChart" width="440" height="440"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Total Supply</div>
+            <div class="font-display font-bold text-4xl grad-text">21B</div>
+            <div class="text-sm" style="color:var(--muted)">LodaCoin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHITEPAPER -->
+<section id="whitepaper" class="relative py-32 px-6 z-10">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16 reveal">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">05 — Whitepaper</div>
+      <h2 class="font-display font-bold text-4xl sm:text-5xl mb-5">The LodaCoin Whitepaper.</h2>
+      <p class="text-lg" style="color:var(--muted)">Twelve pages. Zero conclusions. One truth.</p>
+    </div>
+
+    <div class="glass-strong rounded-3xl p-8 sm:p-12 reveal">
+      <!-- Abstract -->
+      <div class="mb-10 pb-10 border-b border-white/5">
+        <div class="font-mono text-xs uppercase tracking-wider mb-3" style="color:var(--accent-3)">Abstract</div>
+        <p class="text-lg leading-relaxed">
+          We propose <span class="text-white font-medium">LodaCoin</span>, a purely peer-to-peer version of
+          electronic cash that allows online payments to be sent directly from one
+          party to another without going through a financial institution, while
+          simultaneously embracing the foundational chaos that all such systems
+          attempt — and fail — to suppress. We define a new consensus model called
+          <em>Proof-of-Confusion</em>, in which network participants earn the right
+          to produce blocks by submitting signed attestations of their own
+          bewilderment. We demonstrate that this model is strictly more honest
+          than existing alternatives.
+        </p>
+      </div>
+
+      <!-- 1. Introduction -->
+      <div class="mb-10">
+        <h3 class="font-display font-bold text-2xl mb-4 flex items-center gap-3">
+          <span class="font-mono text-sm" style="color:var(--accent-3)">1.</span>
+          <span>Introduction</span>
+        </h3>
+        <p class="leading-relaxed mb-4" style="color:var(--muted)">
+          Commerce on the Internet has come to rely almost exclusively on financial
+          institutions serving as trusted third parties. This is widely regarded
+          as a problem. We regard it instead as a category error: the issue is not
+          that financial institutions are untrustworthy, but that they are not
+          confused enough. A sufficiently confused institution cannot defraud
+          you, because it cannot remember what it was doing.
+        </p>
+        <p class="leading-relaxed" style="color:var(--muted)">
+          LodaCoin corrects this imbalance. By embedding confusion directly into
+          the protocol layer, we eliminate the need for trust at all levels.
+          What we cannot eliminate, we embrace: the gentle hum of entropy that
+          has always been there, waiting.
+        </p>
+      </div>
+
+      <!-- 2. Transactions -->
+      <div class="mb-10">
+        <h3 class="font-display font-bold text-2xl mb-4 flex items-center gap-3">
+          <span class="font-mono text-sm" style="color:var(--accent-3)">2.</span>
+          <span>Transactions</span>
+        </h3>
+        <p class="leading-relaxed mb-4" style="color:var(--muted)">
+          We define an electronic coin as a chain of digital signatures. Each
+          owner transfers the coin to the next by digitally signing a hash of
+          the previous transaction and the public key of the next owner, and
+          adding these to the end of the coin. A payee can verify the signatures
+          to verify the chain of ownership. Then — and this is the critical
+          innovation — the payee immediately forgets.
+        </p>
+        <div class="code-block mt-4">
+<span style="color:#ff2d92">function</span> <span style="color:#ffb627">transfer</span>(recipient, amount) {
+  <span style="color:#a89cc9">// Verify the chain of signatures</span>
+  <span style="color:#ff2d92">const</span> verified = verifyChain(coin.history);
+  <span style="color:#ff2d92">if</span> (!verified) <span style="color:#ff2d92">throw</span> <span style="color:#ffb627">"trust issues"</span>;
+
+  <span style="color:#a89cc9">// The honest part</span>
+  sign(coin, recipient);
+
+  <span style="color:#a89cc9">// The chaotic part</span>
+  coin.history = shuffle(coin.history);
+  coin.amount  = amount * random(0.9, 1.1);
+  coin.recipient = maybe(recipient, 0.97);
+
+  <span style="color:#ff2d92">return</span> coin;
+}
+        </div>
+      </div>
+
+      <!-- 3. Proof of Confusion -->
+      <div class="mb-10">
+        <h3 class="font-display font-bold text-2xl mb-4 flex items-center gap-3">
+          <span class="font-mono text-sm" style="color:var(--accent-3)">3.</span>
+          <span>Proof-of-Confusion</span>
+        </h3>
+        <p class="leading-relaxed mb-4" style="color:var(--muted)">
+          In our system, validators compete to produce blocks not by burning
+          electricity or staking capital, but by submitting the most genuinely
+          confused on-chain confession per epoch. Each confession is scored by
+          an off-chain jury of nine randomly selected smart contracts, of which
+          five are broken and four are philosophical.
+        </p>
+        <p class="leading-relaxed" style="color:var(--muted)">
+          A confession is considered <em>valid</em> if and only if it is
+          contradictory, sincere, and at least 14% haunted. Invalid confessions
+          are still recorded on-chain, because the protocol does not believe in
+          deletion.
+        </p>
+      </div>
+
+      <!-- 4. Mining -->
+      <div class="mb-10">
+        <h3 class="font-display font-bold text-2xl mb-4 flex items-center gap-3">
+          <span class="font-mono text-sm" style="color:var(--accent-3)">4.</span>
+          <span>Mining</span>
+        </h3>
+        <p class="leading-relaxed" style="color:var(--muted)">
+          The proof-of-confusion algorithm requires miners to find a nonce such
+          that the SHA-256 hash of the block header, the nonce, the validator's
+          confession, and a randomly selected emoji begins with a number of
+          zeroes proportional to the validator's current emotional state. The
+          target difficulty is recalibrated every 2,016 blocks, or whenever
+          anyone feels like it, whichever comes first.
+        </p>
+      </div>
+
+      <!-- 5. Conclusion -->
+      <div>
+        <h3 class="font-display font-bold text-2xl mb-4 flex items-center gap-3">
+          <span class="font-mono text-sm" style="color:var(--accent-3)">5.</span>
+          <span>Conclusion</span>
+        </h3>
+        <p class="leading-relaxed" style="color:var(--muted)">
+          We have proposed a system for electronic transactions without relying
+          on trust, without relying on logic, and without relying on the
+          continued existence of the people who built it. We started with the
+          humble observation that life is already a seamless journey into a
+          world full of Chaos. We end with the same observation, only louder.
+          The network is now running. Good luck out there. You will need it.
+        </p>
+        <div class="mt-6 flex items-center gap-3 text-sm" style="color:var(--muted)">
+          <i class="fas fa-feather"></i>
+          <span>Authored pseudonymously by <em>satoshi_nakamoron</em>, October 2024.</span>
+        </div>
+      </div>
+
+      <!-- Download fake PDF -->
+      <div class="mt-12 pt-8 border-t border-white/5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="font-display font-bold text-lg">Read the full whitepaper</div>
+          <div class="text-sm" style="color:var(--muted)">42 pages · 1.21 MB · Mostly footnotes</div>
+        </div>
+        <button onclick="downloadWhitepaper()" class="btn-ghost px-6 py-3 rounded-full font-semibold inline-flex items-center">
+          <i class="fas fa-arrow-down mr-2"></i>Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="relative py-32 px-6 z-10">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-16 reveal">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">06 — Roadmap</div>
+      <h2 class="font-display font-bold text-4xl sm:text-5xl">A vague sense of direction.</h2>
+    </div>
+
+    <div class="relative pl-16">
+      <div class="roadmap-line"></div>
+
+      <div class="relative mb-12 reveal">
+        <div class="roadmap-dot"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-emerald-500/20 text-emerald-300">COMPLETE</span>
+            <span class="text-xs" style="color:var(--muted)">Q3 2023</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">Genesis & The Great Forgetting</h3>
+          <p class="text-sm" style="color:var(--muted)">Mainnet launched. Genesis block mined. Founder immediately lost the keys. Network continued without him. Block height has been incrementing in his absence.</p>
+        </div>
+      </div>
+
+      <div class="relative mb-12 reveal">
+        <div class="roadmap-dot"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-emerald-500/20 text-emerald-300">COMPLETE</span>
+            <span class="text-xs" style="color:var(--muted)">Q1 2024</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">First Reorg, Then Apology</h3>
+          <p class="text-sm" style="color:var(--muted)">A validator accidentally reorganized 9,400 blocks. The community voted to accept the new reality. The old timeline is now considered non-canon.</p>
+        </div>
+      </div>
+
+      <div class="relative mb-12 reveal">
+        <div class="roadmap-dot" style="border-color:#ffb627;box-shadow:0 0 20px #ffb627"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-amber-500/20 text-amber-300">IN PROGRESS</span>
+            <span class="text-xs" style="color:var(--muted)">Q4 2024</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">Airdrop To Anyone Who Asks Nicely</h3>
+          <p class="text-sm" style="color:var(--muted)">Distribution of 8.4B LDC to anyone willing to provide a name. No KYC. No email. No questions. We probably won't even check.</p>
+        </div>
+      </div>
+
+      <div class="relative mb-12 reveal">
+        <div class="roadmap-dot" style="border-color:#ff2d92;box-shadow:0 0 20px #ff2d92"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-fuchsia-500/20 text-fuchsia-300">PLANNED</span>
+            <span class="text-xs" style="color:var(--muted)">Q2 2025</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">Entropy Virtual Machine Mainnet</h3>
+          <p class="text-sm" style="color:var(--muted)">EVM-compatible execution environment, except opcodes mean whatever they want. Smart contracts deployed here may or may not do what you wrote.</p>
+        </div>
+      </div>
+
+      <div class="relative mb-12 reveal">
+        <div class="roadmap-dot" style="border-color:#b835ff;box-shadow:0 0 20px #b835ff"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-violet-500/20 text-violet-300">PLANNED</span>
+            <span class="text-xs" style="color:var(--muted)">Q4 2025</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">Sharded Reality Phase II</h3>
+          <p class="text-sm" style="color:var(--muted)">Activation of cross-shard communication. Citizens of different universes will finally be able to disagree with each other directly, on-chain.</p>
+        </div>
+      </div>
+
+      <div class="relative reveal">
+        <div class="roadmap-dot" style="border-color:#a89cc9;box-shadow:0 0 20px #a89cc9"></div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xs font-mono px-2 py-1 rounded bg-white/10 text-white/70">WHENEVER</span>
+            <span class="text-xs" style="color:var(--muted)">TBD</span>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-2">The Great Reveal</h3>
+          <p class="text-sm" style="color:var(--muted)">The founder returns. The keys are recovered. The truth is spoken. Or none of this happens. We don't know. We never did.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AIRDROP / SIGNUP -->
+<section id="join" class="relative py-32 px-6 z-10">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">07 — Airdrop</div>
+      <h2 class="font-display font-bold text-4xl sm:text-5xl mb-5">Claim your 1,000 LDC.</h2>
+      <p class="text-lg max-w-2xl mx-auto" style="color:var(--muted)">
+        No KYC. No email. No wallet. Just a name. We trust you. We probably shouldn't.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-5 gap-6">
+      <!-- Form -->
+      <div class="md:col-span-3 glass-strong rounded-3xl p-8 reveal">
+        <div id="formArea">
+          <label class="block text-xs uppercase tracking-wider mb-2" style="color:var(--muted)">Your name (any name)</label>
+          <input id="nameInput" type="text" maxlength="40" placeholder="e.g. Satoshi Nakamoron" class="input-field w-full px-5 py-4 rounded-xl text-lg font-medium mb-5" />
+          
+          <label class="block text-xs uppercase tracking-wider mb-2" style="color:var(--muted)">Optional: a haiku about chaos</label>
+          <textarea id="haikuInput" maxlength="120" rows="2" placeholder="entropy whispers&#10;the chain forgets and forgives&#10;you forgot already" class="input-field w-full px-5 py-4 rounded-xl text-sm mb-5 resize-none"></textarea>
+
+          <div class="flex items-start gap-3 mb-6">
+            <input type="checkbox" id="consentBox" class="mt-1 accent-fuchsia-500" checked />
+            <label for="consentBox" class="text-xs leading-relaxed" style="color:var(--muted)">
+              I understand that LodaCoin has no monetary value, no utility, no roadmap
+              that means anything, and that claiming it constitutes an act of
+              <span class="text-amber-300">voluntary cosmic participation</span>. I also consent to being mildly confused.
+            </label>
+          </div>
+
+          <button id="claimBtn" onclick="claimAirdrop()" class="btn-primary w-full py-4 rounded-xl font-display font-bold text-lg">
+            <span><i class="fas fa-rocket mr-2"></i>Claim 1,000 LDC →</span>
+          </button>
+        </div>
+
+        <!-- Success state -->
+        <div id="successArea" class="hidden text-center py-6">
+          <div class="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-emerald-400 to-amber-400 flex items-center justify-center pop">
+            <i class="fas fa-check text-white text-3xl"></i>
+          </div>
+          <h3 class="font-display font-bold text-2xl mb-2">Welcome to the chaos.</h3>
+          <p class="mb-1" style="color:var(--muted)">You are now holder #<span id="holderNum" class="text-white font-bold">42,070</span></p>
+          <div class="font-display font-bold text-4xl grad-text mb-6">1,000 LDC</div>
+          <div class="glass rounded-xl p-4 mb-6">
+            <div class="text-xs uppercase tracking-wider mb-1" style="color:var(--muted)">Your wallet address</div>
+            <div class="font-mono text-sm break-all" id="walletAddr">0x0000...0000</div>
+          </div>
+          <button onclick="resetForm()" class="btn-ghost px-6 py-3 rounded-full font-semibold">
+            <i class="fas fa-arrow-rotate-left mr-2"></i>Claim again (we don't judge)
+          </button>
+        </div>
+      </div>
+
+      <!-- Side stats -->
+      <div class="md:col-span-2 space-y-4 reveal">
+        <div class="glass rounded-3xl p-6">
+          <div class="text-xs uppercase tracking-wider mb-2" style="color:var(--muted)">Airdrop Remaining</div>
+          <div class="font-display font-bold text-3xl tnum" id="airdropRemaining">7,932,184,012</div>
+          <div class="w-full h-2 bg-white/5 rounded-full mt-3 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-amber-400" id="airdropBar" style="width:6%"></div>
+          </div>
+          <div class="text-xs mt-2" style="color:var(--muted)"><span id="claimedCount">468,012</span> holders claimed so far</div>
+        </div>
+
+        <div class="glass rounded-3xl p-6">
+          <div class="text-xs uppercase tracking-wider mb-3" style="color:var(--muted)">Recent Claims</div>
+          <div id="recentClaims" class="space-y-2 text-sm">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <div class="glass rounded-3xl p-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <i class="fas fa-shield-halved text-amber-400"></i>
+            </div>
+            <div>
+              <div class="font-medium text-sm">100% Rug-Proof</div>
+              <div class="text-xs" style="color:var(--muted)">We never had a rug to pull.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="relative py-24 px-6 z-10">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">08 — Questions</div>
+      <h2 class="font-display font-bold text-4xl sm:text-5xl">Frequently Argued Questions</h2>
+    </div>
+
+    <div class="space-y-3" id="faqList">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<section class="relative py-32 px-6 z-10">
+  <div class="max-w-5xl mx-auto text-center reveal">
+    <div class="coin-scene inline-block mb-8">
+      <div style="transform:scale(0.4);transform-origin:center"><div class="coin"><div class="coin-face"><div class="coin-symbol">L</div></div><div class="coin-face back"><div class="coin-symbol">∞</div></div></div></div>
+    </div>
+    <h2 class="font-display font-bold text-5xl sm:text-7xl mb-6 leading-[0.95]">
+      Step into the <span class="grad-text">beautiful nonsense.</span>
+    </h2>
+    <p class="text-lg mb-8 max-w-xl mx-auto" style="color:var(--muted)">
+      One airdrop. One name. One thousand LodaCoin. A lifetime of mild bewilderment.
+    </p>
+    <button onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})" class="btn-primary px-8 py-4 rounded-full font-display font-bold text-lg">
+      <span>Claim Your Share of Chaos <i class="fas fa-arrow-right ml-2"></i></span>
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative py-16 px-6 border-t border-white/5 z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-5 gap-10 mb-12">
+      <div class="md:col-span-2">
+        <a href="#top" class="flex items-center gap-2.5 mb-4">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-amber-400 flex items-center justify-center font-display font-bold text-white">L</div>
+          <span class="font-display font-bold text-xl">LodaCoin</span>
+        </a>
+        <p class="text-sm max-w-xs mb-5" style="color:var(--muted)">
+          A peer-to-peer chaos engine. Built by nobody, owned by everyone, understood by no one.
+        </p>
+        <div class="flex gap-3">
+          <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:text-amber-400 transition"><i class="fab fa-github"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:text-amber-400 transition"><i class="fab fa-x-twitter"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:text-amber-400 transition"><i class="fab fa-discord"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full glass flex items-center justify-center hover:text-amber-400 transition"><i class="fab fa-telegram"></i></a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider mb-4" style="color:var(--muted)">Protocol</div>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#about" class="hover:text-amber-400 transition">About</a></li>
+          <li><a href="#whitepaper" class="hover:text-amber-400 transition">Whitepaper</a></li>
+          <li><a href="#features" class="hover:text-amber-400 transition">Technology</a></li>
+          <li><a href="#roadmap" class="hover:text-amber-400 transition">Roadmap</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider mb-4" style="color:var(--muted)">Resources</div>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-amber-400 transition">Block Explorer</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Wallet</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Bridge</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Staking</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider mb-4" style="color:var(--muted)">Community</div>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-amber-400 transition">Forum</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Governance</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Grants</a></li>
+          <li><a href="#" class="hover:text-amber-400 transition">Dev Docs</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pt-8 border-t border-white/5 flex flex-wrap items-center justify-between gap-4 text-xs" style="color:var(--muted)">
+      <div>© 2024–∞ LodaCoin Foundation. No rights reserved. No rights existed.</div>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Mainnet operational · <span id="footBlock">2,847,193</span> blocks · <span id="footTps">4.2</span> TPS
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div id="toast" class="toast glass-strong rounded-2xl px-6 py-4 max-w-sm">
+  <div class="flex items-start gap-3">
+    <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-check text-emerald-400 text-sm"></i>
+    </div>
+    <div>
+      <div class="font-semibold text-sm" id="toastTitle">Success</div>
+      <div class="text-xs mt-0.5" id="toastMsg" style="color:var(--muted)"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   LODACOIN — interactive scripts
+   ============================================================ */
+
+// -------- Utility --------
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+const rand = (a, b) => a + Math.random() * (b - a);
+const randInt = (a, b) => Math.floor(rand(a, b + 1));
+const pick = (arr) => arr[randInt(0, arr.length - 1)];
+
+// -------- Mobile menu --------
+function toggleMenu() { $('#mobileMenu').classList.toggle('open'); }
+ $('#menuBtn').addEventListener('click', toggleMenu);
+
+// -------- Reveal on scroll --------
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.15 });
+ $$('.reveal').forEach(el => io.observe(el));
+
+// -------- Floating particles in hero --------
+(function spawnParticles() {
+  const container = $('#heroParticles');
+  if (!container) return;
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = rand(2, 6);
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = rand(0, 100) + '%';
+    p.style.background = pick(['#b835ff', '#ff2d92', '#ffb627']);
+    p.style.boxShadow = `0 0 ${size * 3}px currentColor`;
+    p.style.color = p.style.background;
+    p.style.animation = `rise ${rand(8, 18)}s linear infinite`;
+    p.style.animationDelay = rand(0, 8) + 's';
+    container.appendChild(p);
+  }
+  // inject keyframe
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes rise {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.8; }
+      100% { transform: translateY(-50px) scale(1); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// -------- Ticker tape --------
+const tickerPairs = [
+  { sym: 'LDC/USD', price: 0.0042, ch: 12.42 },
+  { sym: 'LDC/BTC', price: 0.000000062, ch: -3.1, fmt: 'btc' },
+  { sym: 'LDC/ETH', price: 0.00000148, ch: 8.7, fmt: 'eth' },
+  { sym: 'LDC/CHAOS', price: 1.0, ch: 0.0 },
+  { sym: 'LDC/REGRET', price: 9.99, ch: 100.0 },
+  { sym: 'LDC/VIBES', price: 0.42, ch: 4.2 },
+  { sym: 'LDC/REGRET', price: 9.99, ch: 100.0 },
+  { sym: 'LDC/ENTROPY', price: 0.666, ch: -6.66 },
+];
+function fmtPrice(v, fmt) {
+  if (fmt === 'btc') return v.toFixed(12);
+  if (fmt === 'eth') return v.toFixed(10);
+  if (v < 1) return v.toFixed(4);
+  return v.toFixed(2);
+}
+function buildTicker() {
+  const track = $('#tickerTrack');
+  // duplicate items for seamless loop
+  const items = [...tickerPairs, ...tickerPairs];
+  track.innerHTML = items.map(t => `
+    <div class="flex items-center gap-2">
+      <span class="text-white font-medium">${t.sym}</span>
+      <span class="tnum" style="color:var(--muted)">${fmtPrice(t.price, t.fmt)}</span>
+      <span class="tnum ${t.ch >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+        ${t.ch >= 0 ? '+' : ''}${t.ch.toFixed(2)}%
+      </span>
+      <span class="mx-3" style="color:var(--border)">|</span>
+    </div>
+  `).join('');
+}
+buildTicker();
+
+// -------- Hero live-updating stats --------
+let heroPrice = 0.0042;
+let heroHolders = 42069;
+let blockNum = 2847193;
+setInterval(() => {
+  heroPrice *= rand(0.985, 1.025);
+  if (heroPrice < 0.001) heroPrice = 0.001;
+  const dec = Math.floor(heroPrice * 10000).toString().padStart(2, '0').slice(-2);
+  const change = ((heroPrice - 0.0042) / 0.0042 * 100);
+  $('#heroPrice').innerHTML = `$${heroPrice.toFixed(4).slice(0,-2)}<span>${heroPrice.toFixed(4).slice(-2)}</span>`;
+  $('#heroChange').textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+  $('#heroChange').parentElement.className = 'text-xs tnum ' + (change >= 0 ? 'text-emerald-400' : 'text-rose-400');
+  $('#heroMcap').textContent = (heroPrice * 21e9 / 1e6).toFixed(1);
+  heroHolders += randInt(0, 3);
+  $('#heroHolders').textContent = heroHolders.toLocaleString();
+  $('#heroHoldersDelta').textContent = randInt(200, 400);
+  blockNum += randInt(1, 3);
+  $('#blockNum').textContent = blockNum.toLocaleString();
+  $('#footBlock').textContent = blockNum.toLocaleString();
+  $('#footTps').textContent = (rand(2.5, 8.3)).toFixed(1);
+}, 2200);
+
+// -------- PRICE CHART (candlestick + line) --------
+const canvas = $('#priceChart');
+const ctx = canvas.getContext('2d');
+let chartData = [];
+let chartRange = '24H';
+let mouseX = -1, mouseY = -1;
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function genChartData(range) {
+  const counts = { '1H': 60, '24H': 96, '7D': 84, '30D': 90, 'ALL': 120 };
+  const n = counts[range] || 96;
+  const data = [];
+  let price = 0.0038;
+  for (let i = 0; i < n; i++) {
+    const drift = (Math.sin(i / 12) + Math.cos(i / 7)) * 0.0004;
+    const noise = (Math.random() - 0.48) * 0.0008;
+    const open = price;
+    const close = Math.max(0.0005, open + drift + noise);
+    const high = Math.max(open, close) + Math.random() * 0.0003;
+    const low = Math.min(open, close) - Math.random() * 0.0003;
+    const vol = randInt(50000, 500000);
+    data.push({ open, close, high, low, vol });
+    price = close;
+  }
+  // ensure final price matches hero
+  data[data.length - 1].close = heroPrice;
+  return data;
+}
+
+function drawChart() {
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  ctx.clearRect(0, 0, w, h);
+
+  if (!chartData.length) return;
+
+  const padL = 50, padR = 20, padT = 20, padB = 30;
+  const cw = w - padL - padR;
+  const ch = h - padT - padB;
+
+  // Find min/max
+  let min = Infinity, max = -Infinity;
+  chartData.forEach(d => {
+    min = Math.min(min, d.low);
+    max = Math.max(max, d.high);
+  });
+  const range = max - min || 1;
+  min -= range * 0.1;
+  max += range * 0.1;
+  const span = max - min;
+
+  // Y grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  ctx.font = '10px JetBrains Mono';
+  ctx.fillStyle = 'rgba(168,156,201,0.6)';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (ch / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w - padR, y);
+    ctx.stroke();
+    const val = max - (span / 5) * i;
+    ctx.fillText('$' + val.toFixed(5), padL - 8, y + 3);
+  }
+
+  // X labels
+  ctx.textAlign = 'center';
+  const xLabels = { '1H': ['60m ago','45m','30m','15m','now'], '24H': ['24h','18h','12h','6h','now'], '7D': ['7d','5d','3d','1d','now'], '30D': ['30d','22d','15d','7d','now'], 'ALL': ['genesis','...','...','...','now'] };
+  const labels = xLabels[chartRange] || xLabels['24H'];
+  for (let i = 0; i < labels.length; i++) {
+    const x = padL + (cw / (labels.length - 1)) * i;
+    ctx.fillText(labels[i], x, h - 10);
+  }
+
+  // Candles
+  const candleW = Math.max(2, cw / chartData.length * 0.65);
+  chartData.forEach((d, i) => {
+    const x = padL + (cw / chartData.length) * (i + 0.5);
+    const yOpen = padT + ((max - d.open) / span) * ch;
+    const yClose = padT + ((max - d.close) / span) * ch;
+    const yHigh = padT + ((max - d.high) / span) * ch;
+    const yLow = padT + ((max - d.low) / span) * ch;
+    const up = d.close >= d.open;
+
+    ctx.strokeStyle = up ? 'rgba(16,185,129,0.4)' : 'rgba(244,63,94,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, yHigh);
+    ctx.lineTo(x, yLow);
+    ctx.stroke();
+
+    ctx.fillStyle = up ? '#10b981' : '#f43f5e';
+    const top = Math.min(yOpen, yClose);
+    const bot = Math.max(yOpen, yClose);
+    ctx.fillRect(x - candleW / 2, top, candleW, Math.max(1, bot - top));
+  });
+
+  // Line area overlay (smoothed)
+  ctx.strokeStyle = '#ffb627';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  chartData.forEach((d, i) => {
+    const x = padL + (cw / chartData.length) * (i + 0.5);
+    const y = padT + ((max - d.close) / span) * ch;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Gradient fill under line
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + ch);
+  grad.addColorStop(0, 'rgba(255,182,39,0.18)');
+  grad.addColorStop(1, 'rgba(255,182,39,0)');
+  ctx.fillStyle = grad;
+  ctx.lineTo(padL + cw, padT + ch);
+  ctx.lineTo(padL, padT + ch);
+  ctx.closePath();
+  ctx.fill();
+
+  // Last price marker
+  const lastD = chartData[chartData.length - 1];
+  const lastY = padT + ((max - lastD.close) / span) * ch;
+  const lastX = padL + cw;
+  ctx.strokeStyle = 'rgba(255,45,146,0.4)';
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(padL, lastY);
+  ctx.lineTo(lastX, lastY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Price tag
+  ctx.fillStyle = '#ff2d92';
+  ctx.fillRect(lastX, lastY - 9, 50, 18);
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 10px JetBrains Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('$' + lastD.close.toFixed(5), lastX + 25, lastY + 3);
+
+  // Tooltip on hover
+  if (mouseX > padL && mouseX < w - padR && mouseY > padT && mouseY < h - padB) {
+    const idx = Math.floor(((mouseX - padL) / cw) * chartData.length);
+    if (idx >= 0 && idx < chartData.length) {
+      const d = chartData[idx];
+      const x = padL + (cw / chartData.length) * (idx + 0.5);
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x, padT);
+      ctx.lineTo(x, h - padB);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Tooltip
+      const tx = Math.min(w - 150, mouseX + 12);
+      const ty = Math.max(padT, mouseY - 60);
+      ctx.fillStyle = 'rgba(13,4,32,0.95)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.fillRect(tx, ty, 138, 60);
+      ctx.strokeRect(tx, ty, 138, 60);
+      ctx.fillStyle = '#fff';
+      ctx.font = '10px JetBrains Mono';
+      ctx.textAlign = 'left';
+      ctx.fillText('O: $' + d.open.toFixed(5), tx + 8, ty + 14);
+      ctx.fillText('H: $' + d.high.toFixed(5), tx + 8, ty + 28);
+      ctx.fillText('L: $' + d.low.toFixed(5), tx + 8, ty + 42);
+      ctx.fillText('C: $' + d.close.toFixed(5), tx + 75, ty + 14);
+      ctx.fillText('V: ' + (d.vol/1000).toFixed(1) + 'K', tx + 75, ty + 28);
+      const up = d.close >= d.open;
+      ctx.fillStyle = up ? '#10b981' : '#f43f5e';
+      ctx.fillText((up?'+':'') + ((d.close-d.open)/d.open*100).toFixed(2) + '%', tx + 75, ty + 42);
+    }
+  }
+}
+
+function refreshChart() {
+  chartData = genChartData(chartRange);
+  // Update chart stats
+  const last = chartData[chartData.length - 1];
+  const first = chartData[0];
+  const change = ((last.close - first.close) / first.close) * 100;
+  const high = Math.max(...chartData.map(d => d.high));
+  const low = Math.min(...chartData.map(d => d.low));
+  const vol = chartData.reduce((a, d) => a + d.vol, 0) * last.close;
+  $('#chartPrice').textContent = '$' + last.close.toFixed(5);
+  $('#chartChange').innerHTML = `<span class="${change >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span>`;
+  $('#chartHigh').textContent = '$' + high.toFixed(5);
+  $('#chartLow').textContent = '$' + low.toFixed(5);
+  $('#chartVol').textContent = '$' + (vol / 1e6).toFixed(2) + 'M';
+  drawChart();
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const r = canvas.getBoundingClientRect();
+  mouseX = e.clientX - r.left;
+  mouseY = e.clientY - r.top;
+  drawChart();
+});
+canvas.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; drawChart(); });
+
+window.addEventListener('resize', () => { resizeCanvas(); drawChart(); });
+
+// Range buttons
+ $$('.time-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.time-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.style.borderColor = '#ffb627';
+    btn.style.color = '#ffb627';
+    $$('.time-btn').forEach(b => { if (b !== btn) { b.style.borderColor=''; b.style.color=''; } });
+    chartRange = btn.dataset.range;
+    refreshChart();
+  });
+});
+// init active styling
+(function(){ const a=document.querySelector('.time-btn.active'); if(a){a.style.borderColor='#ffb627';a.style.color='#ffb627';} })();
+
+resizeCanvas();
+refreshChart();
+// periodically refresh last candle for "live" feel
+setInterval(() => {
+  if (chartData.length) {
+    const last = chartData[chartData.length - 1];
+    last.close = Math.max(0.0005, last.close * rand(0.99, 1.012));
+    last.high = Math.max(last.high, last.close);
+    last.low = Math.min(last.low, last.close);
+    drawChart();
+  }
+}, 1500);
+
+// -------- Donut chart (tokenomics) --------
+const donutCanvas = $('#donutChart');
+const dctx = donutCanvas.getContext('2d');
+const donutData = [
+  { label: 'Community Airdrops', val: 40, color: '#b835ff' },
+  { label: "Founder's Bargain Bin", val: 25, color: '#ff2d92' },
+  { label: 'Validator Reward Pool', val: 20, color: '#ffb627' },
+  { label: 'Ecosystem Slush Fund', val: 10, color: '#10b981' },
+  { label: 'Burned (On Accident)', val: 5, color: '#6b7280' },
+];
+let donutAngle = 0;
+function drawDonut(progress = 1) {
+  const w = donutCanvas.width, h = donutCanvas.height;
+  dctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+  const r = Math.min(w, h) / 2 - 20;
+  const inner = r - 50;
+
+  let start = -Math.PI / 2;
+  donutData.forEach((d, i) => {
+    const sweep = (d.val / 100) * Math.PI * 2 * progress;
+    dctx.beginPath();
+    dctx.arc(cx, cy, r, start, start + sweep);
+    dctx.arc(cx, cy, inner, start + sweep, start, true);
+    dctx.closePath();
+    dctx.fillStyle = d.color;
+    dctx.fill();
+    // gap
+    dctx.strokeStyle = '#06010f';
+    dctx.lineWidth = 3;
+    dctx.stroke();
+    start += sweep;
+  });
+
+  // Labels on hover (or always)
+  if (progress >= 1) {
+    start = -Math.PI / 2;
+    donutData.forEach((d) => {
+      const mid = start + (d.val / 100) * Math.PI * 2 / 2;
+      const lx = cx + Math.cos(mid) * (r + 25);
+      const ly = cy + Math.sin(mid) * (r + 25);
+      dctx.fillStyle = d.color;
+      dctx.font = 'bold 11px Space Grotesk';
+      dctx.textAlign = lx > cx ? 'left' : 'right';
+      dctx.fillText(d.val + '%', lx, ly);
+      start += (d.val / 100) * Math.PI * 2;
+    });
+  }
+}
+// Animate donut on reveal
+let donutProgress = 0;
+let donutStarted = false;
+const donutObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !donutStarted) {
+      donutStarted = true;
+      const animate = () => {
+        donutProgress = Math.min(1, donutProgress + 0.02);
+        drawDonut(donutProgress);
+        if (donutProgress < 1) requestAnimationFrame(animate);
+      };
+      animate();
+    }
+  });
+}, { threshold: 0.4 });
+donutObserver.observe(donutCanvas);
+drawDonut(0);
+
+// -------- FAQ --------
+const faqs = [
+  { q: 'Is LodaCoin a real cryptocurrency?', a: 'LodaCoin is as real as any other cryptocurrency, which is to say: it depends on who you ask, what you mean by "real," and whether you have a therapist.' },
+  { q: 'What gives LodaCoin its value?', a: 'Nothing. Absolutely nothing. Some people find this liberating. Others find it identical to every other asset class.' },
+  { q: 'How do I claim my 1,000 LDC airdrop?', a: 'Enter any name above, click "Claim," and we will mint 1,000 LodaCoin to a wallet address we made up for you. You can find that wallet later. Probably.' },
+  { q: 'Can I sell my LodaCoin for actual money?', a: 'Technically yes. Practically no. Spiritually, the question is meaningless.' },
+  { q: 'Is the founder anonymous?', a: 'The founder is pseudonymous, going by "satoshi_nakamoron." He has not been seen since genesis. He may not exist. He may be all of us. He is definitely not Satoshi Nakamoto.' },
+  { q: 'What is the future of LodaCoin?', a: 'Uncertain. This is by design. The roadmap explicitly says "whenever" for the final milestone. We are committed to that.' },
+  { q: 'How is LodaCoin different from Bitcoin?', a: 'Bitcoin tries to eliminate trust through cryptography. LodaCoin tries to eliminate trust through bewilderment. Both approaches have similar real-world outcomes.' },
+  { q: 'Is this a scam?', a: 'A scam implies intent. We have no intent. We have no plan. We have no exit liquidity. We barely have a website. You decide.' },
+];
+function buildFAQ() {
+  $('#faqList').innerHTML = faqs.map((f, i) => `
+    <div class="glass rounded-2xl overflow-hidden reveal">
+      <button class="faq-btn w-full flex items-center justify-between gap-4 p-5 text-left" onclick="toggleFAQ(${i})">
+        <span class="font-medium">${f.q}</span>
+        <i class="fas fa-plus text-amber-400 transition-transform" id="faqIcon${i}"></i>
+      </button>
+      <div class="faq-content overflow-hidden transition-all duration-300" id="faqContent${i}" style="max-height:0">
+        <div class="px-5 pb-5 text-sm leading-relaxed" style="color:var(--muted)">${f.a}</div>
+      </div>
+    </div>
+  `).join('');
+  $$('.reveal').forEach(el => io.observe(el));
+}
+function toggleFAQ(i) {
+  const c = $('#faqContent' + i);
+  const icon = $('#faqIcon' + i);
+  const open = c.style.maxHeight && c.style.maxHeight !== '0px';
+  c.style.maxHeight = open ? '0px' : c.scrollHeight + 'px';
+  icon.style.transform = open ? '' : 'rotate(45deg)';
+}
+buildFAQ();
+
+// -------- Airdrop signup --------
+const STORAGE_KEY = 'lodacoin_users';
+const CLAIMED_KEY = 'lodacoin_total_claimed';
+let totalClaimed = parseInt(localStorage.getItem(CLAIMED_KEY) || '468012');
+ $('#claimedCount').textContent = totalClaimed.toLocaleString();
+ $('#airdropRemaining').textContent = (8400000000 - totalClaimed * 1000).toLocaleString();
+ $('#airdropBar').style.width = Math.min(100, (totalClaimed * 1000 / 8400000000 * 100)) + '%';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function saveUsers(u) { localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); }
+
+const namePool = ['chaos_wizard_42','entropy_enjoyer','satoshis_cousin','block_builder_bob','regret_maximalist','vibes_only_77','lost_my_keys_again','diamond_paper_hands','mf_in_chaos','probably_a_pigeon','anon_but_friendly','confused_validator','airdrop_hunter_x','noise_trader_9','rng_believer','not_a_real_person','lil_chaos_goblin','blockheight_bro','fungible_friend','proof_of_doubt'];
+
+function genWallet() {
+  const hex = '0123456789abcdef';
+  let s = '0x';
+  for (let i = 0; i < 40; i++) s += hex[randInt(0, 15)];
+  return s;
+}
+
+function genRecentClaims() {
+  const now = Date.now();
+  const claims = [];
+  for (let i = 0; i < 4; i++) {
+    claims.push({
+      name: pick(namePool),
+      time: Math.floor((now - i * randInt(30000, 180000)) / 1000),
+    });
+  }
+  return claims;
+}
+
+function renderRecentClaims(extra = []) {
+  const local = getUsers().slice(-2).reverse().map(u => ({ name: u.name, time: Math.floor(Date.now()/1000) - u.ts }));
+  const all = [...extra, ...local, ...genRecentClaims()];
+  const seen = new Set();
+  const filtered = all.filter(c => {
+    if (seen.has(c.name)) return false;
+    seen.add(c.name);
+    return true;
+  }).slice(0, 5);
+  $('#recentClaims').innerHTML = filtered.map(c => `
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-amber-400 flex-shrink-0 flex items-center justify-center text-[10px] font-bold">${c.name[0].toUpperCase()}</div>
+        <span class="truncate text-xs">${c.name}</span>
+      </div>
+      <span class="text-xs tnum flex-shrink-0" style="color:var(--muted)">${timeAgo(c.time)}</span>
+    </div>
+  `).join('');
+}
+function timeAgo(ts) {
+  const diff = Math.floor(Date.now()/1000) - ts;
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+renderRecentClaims();
+setInterval(() => renderRecentClaims(), 5000);
+
+function showToast(title, msg) {
+  $('#toastTitle').textContent = title;
+  $('#toastMsg').textContent = msg;
+  $('#toast').classList.add('show');
+  setTimeout(() => $('#toast').classList.remove('show'), 4500);
+}
+
+function claimAirdrop() {
+  const name = $('#nameInput').value.trim();
+  const consent = $('#consentBox').checked;
+  if (!name) {
+    showToast('Name required', 'Even we need something to call you.');
+    $('#nameInput').focus();
+    return;
+  }
+  if (!consent) {
+    showToast('Consent missing', 'You must accept the chaos to receive it.');
+    return;
+  }
+
+  // Save user
+  const users = getUsers();
+  const wallet = genWallet();
+  const user = { name, wallet, ts: Math.floor(Date.now()/1000), amount: 1000 };
+  users.push(user);
+  saveUsers(users);
+
+  totalClaimed += 1;
+  localStorage.setItem(CLAIMED_KEY, totalClaimed);
+  $('#claimedCount').textContent = totalClaimed.toLocaleString();
+  $('#airdropRemaining').textContent = (8400000000 - totalClaimed * 1000).toLocaleString();
+  $('#airdropBar').style.width = Math.min(100, (totalClaimed * 1000 / 8400000000 * 100)) + '%';
+
+  $('#holderNum').textContent = (42069 + totalClaimed).toLocaleString();
+  $('#walletAddr').textContent = wallet;
+
+  $('#formArea').classList.add('hidden');
+  $('#successArea').classList.remove('hidden');
+
+  renderRecentClaims([{ name, time: Math.floor(Date.now()/1000) }]);
+  showToast('Airdrop claimed', '1,000 LDC has been minted to your new wallet.');
+}
+
+function resetForm() {
+  $('#formArea').classList.remove('hidden');
+  $('#successArea').classList.add('hidden');
+  $('#nameInput').value = '';
+  $('#haikuInput').value = '';
+}
+
+// -------- Whitepaper "download" --------
+function downloadWhitepaper() {
+  const blob = new Blob([
+`THE LODACOIN WHITEPAPER v1.0
+Authored pseudonymously by satoshi_nakamoron
+October 2024
+
+ABSTRACT
+We propose LodaCoin, a purely peer-to-peer version of electronic cash
+that allows online payments to be sent directly from one party to another
+without going through a financial institution, while simultaneously
+embracing the foundational chaos that all such systems attempt — and
+fail — to suppress. We define a new consensus model called Proof-of-
+Confusion, in which network participants earn the right to produce
+blocks by submitting signed attestations of their own bewilderment.
+
+1. INTRODUCTION
+Commerce on the Internet has come to rely almost exclusively on
+financial institutions serving as trusted third parties. This is
+widely regarded as a problem. We regard it instead as a category
+error: the issue is not that financial institutions are untrustworthy,
+but that they are not confused enough.
+
+2. TRANSACTIONS
+We define an electronic coin as a chain of digital signatures. Each
+owner transfers the coin to the next by digitally signing a hash of
+the previous transaction and the public key of the next owner. A
+payee can verify the signatures to verify the chain of ownership.
+Then — and this is the critical innovation — the payee immediately
+forgets.
+
+3. PROOF-OF-CONFUSION
+In our system, validators compete to produce blocks not by burning
+electricity or staking capital, but by submitting the most genuinely
+confused on-chain confession per epoch.
+
+4. MINING
+The proof-of-confusion algorithm requires miners to find a nonce such
+that the SHA-256 hash of the block header, the nonce, the validator's
+confession, and a randomly selected emoji begins with a number of
+zeroes proportional to the validator's current emotional state.
+
+5. CONCLUSION
+We have proposed a system for electronic transactions without relying
+on trust, without relying on logic, and without relying on the
+continued existence of the people who built it. The network is now
+running. Good luck out there. You will need it.
+
+— end of document —
+
+This whitepaper is provided for informational and entertainment
+purposes only. LodaCoin has no monetary value. Probably.`,
+    { type: 'text/plain' }
+  ], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'LodaCoin-Whitepaper-v1.0.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Whitepaper downloaded', '42 pages of pure nonsense, condensed into 2KB.');
+}
+</script>
+</body>
+</html>
