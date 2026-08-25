@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LodaCoin — Chaos, Decentralized.</title>
+<meta name="description" content="LodaCoin is a peer-to-peer chaos engine. Embark on a seamless journey into a world full of Chaos.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    --bg: #06010f;
+    --bg-2: #0d0420;
+    --fg: #f5f0ff;
+    --muted: #a89cc9;
+    --accent: #b835ff;
+    --accent-2: #ff2d92;
+    --accent-3: #ffb627;
+    --card: rgba(255,255,255,0.035);
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+  .font-display { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Aurora background */
+  .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .blob {
+    position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+    filter: blur(120px); opacity: 0.45; will-change: transform;
+  }
+  .blob.a { top: -25%; left: -15%; background: radial-gradient(circle, #b835ff 0%, transparent 60%); animation: float1 22s ease-in-out infinite; }
+  .blob.b { bottom: -25%; right: -15%; background: radial-gradient(circle, #ff2d92 0%, transparent 60%); animation: float2 26s ease-in-out infinite; }
+  .blob.c { top: 40%; left: 50%; width: 50vmax; height: 50vmax; background: radial-gradient(circle, #ffb627 0%, transparent 60%); animation: float3 30s ease-in-out infinite; opacity: 0.25; }
+  @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(8%,6%) scale(1.15)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-8%,-6%) scale(1.1)} }
+  @keyframes float3 { 0%,100%{transform:translate(-50%,0) scale(1)} 50%{transform:translate(-50%,-5%) scale(1.2)} }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(184, 53, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184, 53, 255, 0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Glass */
+  .glass {
+    background: var(--card);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--border);
+  }
+  .glass-strong {
+    background: rgba(13,4,32,0.7);
+    backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--border);
+  }
+
+  /* Gradient text */
+  .grad-text {
+    background: linear-gradient(135deg, #b835ff 0%, #ff2d92 50%, #ffb627 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .grad-text-2 {
+    background: linear-gradient(135deg, #ffb627 0%, #ff2d92 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #b835ff, #ff2d92);
+    color: white; transition: all 0.3s ease; position: relative; overflow: hidden;
+    border: none; cursor: pointer;
+  }
+  .btn-primary::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, #ff2d92, #ffb627); opacity:0; transition:opacity 0.3s ease;
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(255,45,146,0.5); }
+  .btn-primary > * { position: relative; z-index: 1; }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+    cursor: pointer; color: var(--fg);
+  }
+  .btn-ghost:hover { border-color: var(--accent-3); background: rgba(255,182,39,0.06); color: var(--accent-3); }
+
+  /* Coin 3D */
+  .coin-scene { perspective: 1200px; }
+  .coin {
+    width: 280px; height: 280px; position: relative;
+    transform-style: preserve-3d;
+    animation: spinCoin 14s linear infinite;
+  }
+  .coin-face {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffe08a 0%, #ffb627 35%, #c87f0a 80%, #6b4205 100%);
+    box-shadow: inset -10px -10px 30px rgba(0,0,0,0.5), inset 10px 10px 30px rgba(255,255,255,0.3), 0 30px 60px -15px rgba(255,182,39,0.4);
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    backface-visibility: hidden;
+  }
+  .coin-face.back { transform: rotateY(180deg); }
+  .coin-edge {
+    position: absolute; inset: 0; border-radius: 50%;
+    transform: translateZ(-1px);
+  }
+  @keyframes spinCoin {
+    from { transform: rotateY(0deg) rotateX(8deg); }
+    to { transform: rotateY(360deg) rotateX(8deg); }
+  }
+  .coin-symbol {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 140px; line-height: 1; color: #6b4205;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.4), -1px -1px 0 rgba(0,0,0,0.2);
+  }
+  .coin-label {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    letter-spacing: 0.3em; font-size: 11px; color: #6b4205; margin-top: 4px;
+  }
+
+  /* Marquee ticker */
+  .marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); }
+  .marquee-track { display: flex; width: max-content; animation: marqueeMove 40s linear infinite; }
+  @keyframes marqueeMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Noise */
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent), var(--accent-2)); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-3); }
+
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Floating particles */
+  .particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .particle { position: absolute; bottom: -10px; border-radius: 50%; opacity: 0; }
+
+  /* Roadmap */
+  .roadmap-line { position: absolute; left: 27px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--accent), var(--accent-2), var(--accent-3), transparent); }
+  .roadmap-dot { position: absolute; left: 20px; top: 8px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 3px solid var(--accent-3); box-shadow: 0 0 20px var(--accent-3); }
+
+  /* Form */
+  .input-field {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    transition: all 0.3s ease;
+  }
+  .input-field:focus {
+    outline: none; border-color: var(--accent-2);
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 4px rgba(255,45,146,0.1);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100;
+    transform: translateY(120%); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .toast.show { transform: translateY(0); }
+
+  /* Nav links underline */
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -4px; width: 0; height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-3)); transition: width 0.3s ease;
+  }
+  .nav-link:hover::after { width: 100%; }
+
+  /* Hero scroll indicator */
+  .scroll-ind { animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+  /* Card hover */
+  .feat-card { transition: all 0.4s ease; position: relative; overflow: hidden; }
+  .feat-card::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--accent), transparent, var(--accent-3), transparent);
+    opacity: 0; transition: opacity 0.5s ease; animation: spin 6s linear infinite;
+  }
+  .feat-card:hover::before { opacity: 0.15; }
+  .feat-card:hover { transform: translateY(-4px); border-color: rgba(255,182,39,0.3); }
+  .feat-card > * { position: relative; z-index: 1; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Number counter size */
+  .stat-num { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; }
+
+  /* Selection */
+  ::selection { background: var(--accent-2); color: white; }
+
+  /* Mobile menu */
+  .mobile-menu { transform: translateX(100%); transition: transform 0.4s ease; }
+  .mobile-menu.open { transform: translateX(0); }
+
+  /* Whitepaper code block */
+  .code-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    overflow-x: auto;
+  }
+
+  /* Hero typing */
+  .typewriter::after {
+    content: '|'; animation: blink 1s steps(2) infinite;
+    color: var(--accent-3);
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Glow ring around hero CTA */
+  .glow-ring {
+    position: absolute; inset: -4px; border-radius: 9999px; z-index: -1; opacity: 0;
+    background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+    filter: blur(12px); transition: opacity 0.4s ease;
+    animation: spin 4s linear infinite;
+  }
+  .glow-wrap:hover .glow-ring { opacity: 0.8; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+<div class="noise"></div>
+
+<!-- NAVIGATION -->
+<nav class="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-4">
+  <div class="max-w-7xl mx-auto flex items-center justify-between glass-strong rounded-2xl px-5 sm:px-6 py-3">
+    <a href="#top" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-amber-400 flex items-center justify-center font-display font-bold text-white shadow-lg shadow-fuchsia-500/30">L</div>
+      <span class="font-display font-bold text-xl tracking-tight">LodaCoin</span>
+    </a>
+    <div class="hidden lg:flex items-center gap-8 text-sm" style="color:var(--muted)">
+      <a href="#about" class="nav-link hover:text-white transition">About</a>
+      <a href="#markets" class="nav-link hover:text-white transition">Markets</a>
+      <a href="#features" class="nav-link hover:text-white transition">Technology</a>
+      <a href="#whitepaper" class="nav-link hover:text-white transition">Whitepaper</a>
+      <a href="#roadmap" class="nav-link hover:text-white transition">Roadmap</a>
+      <a href="#join" class="nav-link hover:text-white transition">Airdrop</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="glow-wrap relative hidden sm:block">
+        <button onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})" class="btn-primary px-5 py-2.5 rounded-full text-sm font-semibold">
+          <span>Claim 1,000 LDC</span>
+        </button>
+        <div class="glow-ring"></div>
+      </div>
+      <button id="menuBtn" class="lg:hidden btn-ghost w-10 h-10 rounded-full flex items-center justify-center">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 lg:hidden">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleMenu()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-72 glass-strong p-8 pt-24 flex flex-col gap-6">
+    <a href="#about" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">About</a>
+    <a href="#markets" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Markets</a>
+    <a href="#features" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Technology</a>
+    <a href="#whitepaper" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Whitepaper</a>
+    <a href="#roadmap" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Roadmap</a>
+    <a href="#join" onclick="toggleMenu()" class="text-lg hover:text-amber-400 transition">Airdrop</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="top" class="relative min-h-screen flex items-center pt-32 pb-20 px-6">
+  <div class="grid-overlay"></div>
+  <div class="particles" id="heroParticles"></div>
+  <div class="max-w-7xl mx-auto w-full relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+    
+    <div class="text-center lg:text-left">
+      <div class="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs mb-6 reveal">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span style="color:var(--muted)">Mainnet Live · Block #<span id="blockNum" class="tnum">2,847,193</span></span>
+      </div>
+      
+      <h1 class="font-display font-bold text-5xl sm:text-7xl lg:text-8xl leading-[0.95] mb-6 reveal">
+        Chaos,<br>
+        <span class="grad-text">decentralized.</span>
+      </h1>
+      
+      <p class="text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 mb-8 reveal" style="color:var(--muted)">
+        LodaCoin is a peer-to-peer chaos engine. A seamless journey into a world
+        full of Chaos — secured by proof-of-confusion, governed by entropy, and
+        minted in the fires of pure absurdity.
+      </p>
+      
+      <div class="flex flex-wrap gap-3 justify-center lg:justify-start mb-10 reveal">
+        <div class="glow-wrap relative">
+          <button onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})" class="btn-primary px-7 py-3.5 rounded-full font-semibold">
+            <span><i class="fas fa-rocket mr-2"></i>Claim Airdrop</span>
+          </button>
+          <div class="glow-ring"></div>
+        </div>
+        <a href="#whitepaper" class="btn-ghost px-7 py-3.5 rounded-full font-semibold inline-flex items-center">
+          <i class="fas fa-file-lines mr-2"></i>Read Whitepaper
+        </a>
+      </div>
+
+      <!-- Price ticker mini -->
+      <div class="grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0 reveal">
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Price</div>
+          <div class="font-display font-bold text-2xl tnum" id="heroPrice">$0.00<span id="heroPriceDec">42</span></div>
+          <div class="text-xs text-emerald-400 tnum"><i class="fas fa-caret-up"></i> <span id="heroChange">+12.4%</span></div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Market Cap</div>
+          <div class="font-display font-bold text-2xl tnum">$<span id="heroMcap">184.2</span>M</div>
+          <div class="text-xs" style="color:var(--muted)">Rank #2,847</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider" style="color:var(--muted)">Holders</div>
+          <div class="font-display font-bold text-2xl tnum" id="heroHolders">42,069</div>
+          <div class="text-xs text-amber-400">+<span id="heroHoldersDelta">312</span>/hr</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coin visualization -->
+    <div class="flex justify-center lg:justify-end reveal">
+      <div class="coin-scene relative">
+        <!-- Orbit rings -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[420px] h-[420px] rounded-full border border-fuchsia-500/10"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[360px] h-[360px] rounded-full border border-violet-500/15"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-[480px] h-[480px] rounded-full border border-amber-500/5"></div>
+        </div>
+        
+        <div class="coin">
+          <div class="coin-face">
+            <div class="coin-symbol">L</div>
+            <div class="coin-label">LODA · COIN</div>
+          </div>
+          <div class="coin-face back">
+            <div class="coin-symbol">∞</div>
+            <div class="coin-label">CHAOS ENGINE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 scroll-ind hidden md:block" style="color:var(--muted)">
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- TICKER MARQUEE -->
+<section class="relative py-4 border-y border-white/5 bg-black/30 backdrop-blur-sm z-10">
+  <div class="marquee">
+    <div class="marquee-track">
+      <div class="flex items-center gap-10 px-5 text-sm whitespace-nowrap" id="tickerTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="relative py-32 px-6 z-10">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+      <div class="md:col-span-4 reveal">
+        <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:var(--accent-3)">01 — Manifesto</div>
+        <h2 class="font-display font-bold text-4xl sm:text-5xl leading-tight">
+          A seamless journey into <span class="grad-text-2">total chaos.</span>
+        </h2>
+      </div>
+      <div class="md:col-span-8 reveal">
+        <p class="text-xl leading-relaxed mb-6" style="color:var(--muted)">
+          Satoshi gave the world a sound money. Vitalik gave it a world computer.
+          We gave it a <span class="text-white font-medium">reason to log off and question everything.</span>
+        </p>
+        <p class="text-lg leading-relaxed mb-6" style="color:var(--muted)">
+          LodaCoin is the first monetary protocol engineered around the
+          principle that life is already a seamless journey into a world full of
+          Chaos — so why pretend otherwise? Every block is a confession. Every
+          transaction is a small act of beautiful nonsense. Every wallet is a
+          life-raft on a river of pure entropy.
+        </p>
+        <p class="text-lg leading-relaxed" style="color:var(--muted)">
+          We did not invent chaos. We just made it spendable.
+        </p>
+
+        <div class="grid sm:grid-cols-3 gap-4 mt-10">
+          <div class="glass rounded-2xl p-5">
+            <div class="font-display font-bold text-3xl grad-text">21B</div>
+            <div class="text-xs uppercase tracking-wider mt-1" style="color:var(--muted)">Total Supply</div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <div class="font-display font-bold text-3xl grad-text">0.
